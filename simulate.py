@@ -4,15 +4,23 @@ import pandas as pd
 import congif as cgf
 from people import Dude
 from networks import Group
+from tools import build_df
+import plotly.express as px
 
 
 class Simulate:
     def __init__(self, comm_size):
+        self.comm_size = comm_size
         self.houses = []
         self.outer_circles = []
         self.peeps = []
         self.networks = []
-        self.comm_size = comm_size
+        self.cumulative_cases = {'day': [0, 0, 0], 'cases': [0, 0, 0], 'type': ['total', 'infected-a', 'infected-s']}
+        self.total_cases = 0
+        self.total_asymp = 0
+        self.total_symp = 0
+        self.total_deaths = 0
+        self.total_recoveries = 0
 
     def create_houses(self):
 
@@ -110,14 +118,25 @@ class Simulate:
             if s not in ss:
                 ss[s] = 0
 
+        self.total_cases += new_cases
+        self.total_asymp += ss['infected-a']
+        self.total_symp += ss['infected-s']
+
         print("----------Virus Report----------\n")
         print("Today's new cases: {}".format(new_cases))
-        print("Total Infected: {}".format(ss['infected-s'] + ss['infected-a']))
+        prop = ((ss['infected-s'] + ss['infected-a']) / len(self.peeps)) * 100
+        print("Total Infected: {} ({:.1f}%)".format(ss['infected-s'] + ss['infected-a'], prop))
         print("Asymptomatic Cases:", ss['infected-a'])
         print("Symptomatic Cases:", ss['infected-s'])
         print("Total Recoveries:", ss['recovered'])
         print("Total Deaths:", ss['dead'])
         print("Stay Home, Save Lives\n")
+
+    def isolate_phase_one(self):
+        # First set of isolation and social distancing
+
+        for person in self.peeps:
+            print(person)
 
     def run_simulation(self, duration):
 
@@ -140,28 +159,24 @@ class Simulate:
                 self.begin_sim()
             else:
                 self.day()
+                # Add cumulative stats
+                # Total
+                self.cumulative_cases['day'].append(i)
+                self.cumulative_cases['cases'].append(self.total_cases)
+                self.cumulative_cases['type'].append('total')
 
+                # Asymptomatic
+                self.cumulative_cases['day'].append(i)
+                self.cumulative_cases['cases'].append(self.total_asymp)
+                self.cumulative_cases['type'].append('infected-a')
 
-def build_df(lst, what):
-    if what == 'g':
-        dct = {'code': [], 'type': [], 't-rate': [], 'size': []}
+                # Symptomatic
+                self.cumulative_cases['day'].append(i)
+                self.cumulative_cases['cases'].append(self.total_symp)
+                self.cumulative_cases['type'].append('infected-s')
 
-        for thing in lst:
-            for tin in thing:
-                dct['code'].append(tin.code)
-                dct['type'].append(tin.type)
-                dct['t-rate'].append(tin.transmission_rate)
-                dct['size'].append(tin.size)
+    def report(self):
+        fig = px.line(pd.DataFrame(self.cumulative_cases), x='day', y='cases', color='type')
+        fig.show()
 
-    else:
-        dct = {'name': [], 'age': [], 'state': [], 'job': []}
-
-        for thing in lst:
-            for tin in thing:
-                dct['name'].append(tin.name)
-                dct['age'].append(tin.age)
-                dct['state'].append(tin.state)
-                dct['job'].append(tin.job)
-
-    return pd.DataFrame(dct)
 

@@ -21,6 +21,7 @@ class Simulate:
         self.total_symp = 0
         self.total_deaths = 0
         self.total_recoveries = 0
+        self.built = False
 
     def create_houses(self):
 
@@ -68,26 +69,53 @@ class Simulate:
 
     def outer_circle_gen(self):
 
-        # Size of outer circles, dependent on populaiton size
-        ocircle_size = int(len(self.peeps) * 0.008 + random.randint(-5, 5))
-
         # Number of outer circles, dependent on inner circle count
-        ocircle_count = int((len(self.peeps) / ocircle_size) * 0.95)
+        ocircle_count = int(len(self.peeps) * 0.0675)
+        sze = 0
 
         for i in range(0, ocircle_count):
-            # Lower rates for outr circles
-            rate = random.uniform(0, 0.5)
-            size = int(len(self.peeps) * random.uniform(0.0001, 0.0008) + random.randint(-5, 5))
+            # Randomly create a large or small group
+            if round(random.random()) == 1:
+                # Lower rates for larger outer circles
+                rate = random.uniform(0.01, 0.4)
+                size = int(random.gauss(40, 30))
+            else:
+                rate = random.uniform(0.2, 0.65)
+                size = int(random.gauss(15, 12))
             grp = Group(size, rate, i, 'outer')
             self.outer_circles.append(grp)
+            sze += size
+        # print(sze)
 
         for pepe in self.peeps:
             nets = random.sample(self.outer_circles, random.randint(1, 3))
+
             for net in nets:
-                net.members.append(pepe)
-                pepe.network.append(net)
+                cnt = 0
+                solo = False
+                # If network is full, find another one!
+                while len(net.members) >= net.size:
+                    cnt += 1
+                    if cnt > len(self.outer_circles):
+                        solo = True
+                        break
+                    else:
+                        net = random.choice(self.outer_circles)
+                if solo:
+                    break
+                else:
+                    net.members.append(pepe)
+                    pepe.network.append(net)
 
         return self.outer_circles
+
+    def get_open_networks(self):
+        circles = [net for net in self.outer_circles if len(net.members) < net.size]
+        # for net in self.outer_circles:
+        #     if len(net.members) < net.size:
+        #         circles.append(net)
+
+        return circles
 
     def begin_sim(self):
         # Begin by infecting one person
@@ -132,14 +160,38 @@ class Simulate:
         print("Total Deaths:", ss['dead'])
         print("Stay Home, Save Lives\n")
 
+    def remove_network(self, person, networks):
+        # Remove person from networks and networks from person
+
+        person.network = [net for net in person.network if net not in networks]
+        for net in networks:
+            net.members = [mem for mem in net.members if mem != person]
+
     def isolate_phase_one(self):
         # First set of isolation and social distancing
+        print("\n-----------SELF ISOLATION PHASE ONE-----------\n")
+
+        total_members = 0
+        for net in self.outer_circles:
+            total_members += len(net.members)
+        print("Original Average Network Size:", total_members / len(self.outer_circles))
 
         for person in self.peeps:
-            print(person)
+            if len(person.network) == 0:
+                print("Do nothing")
+                break
+            elif len(person.network) <= 2:
+                isolated_networks = [person.network.pop(-1)]
+            else:
+                isolated_networks = [person.network.pop(-1), person.network.pop(-1)]
+            self.remove_network(person, isolated_networks)
 
-    def run_simulation(self, duration):
+        total_members = 0
+        for net in self.outer_circles:
+            total_members += len(net.members)
+        print("New Average Network Size: {}\n".format(total_members / len(self.outer_circles)))
 
+    def setup(self):
         # Create Houses
         print("Creating dwellings and populating them")
         houses, peeps = self.genesis()
@@ -150,7 +202,9 @@ class Simulate:
         outer_circles = self.outer_circle_gen()
         self.networks = houses + outer_circles
         print("Total Population Size: {} Total Outer Networks: {}".format(len(self.peeps), len(self.outer_circles)))
-        print("Running simulation!!\n")
+        self.built = True
+
+    def day_iterate(self, duration):
 
         # Simulate daily transmissions for a month
         for i in range(0, duration):
@@ -158,6 +212,10 @@ class Simulate:
             if i == 0:
                 self.begin_sim()
             else:
+                if i == int(duration*0.5):
+                    # When we reach the half was mark begin basic self isolation
+                    self.isolate_phase_one()
+
                 self.day()
                 # Add cumulative stats
                 # Total
@@ -175,8 +233,14 @@ class Simulate:
                 self.cumulative_cases['cases'].append(self.total_symp)
                 self.cumulative_cases['type'].append('infected-s')
 
+    def run_simulation(self, duration):
+
+        if not self.built:
+            self.setup()
+
+        print("Running simulation!!\n")
+        self.day_iterate(duration)
+
     def report(self):
         fig = px.line(pd.DataFrame(self.cumulative_cases), x='day', y='cases', color='type')
         fig.show()
-
-

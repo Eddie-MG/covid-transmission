@@ -1,4 +1,5 @@
 import numpy as np
+import time
 import random
 import pandas as pd
 import congif as cgf
@@ -194,14 +195,23 @@ class Simulate:
     def setup(self):
         # Create Houses
         print("Creating dwellings and populating them")
+        start = time.time()
         houses, peeps = self.genesis()
-        print("Houses populated")
+        d = time.time() - start
+        if d > 60:
+            print("Houses populated. It took {:.2f}mins".format(d/60))
+        else:
+            print("Houses populated. It took {:.1f}seconds".format(d))
 
         # Create Outer Circles
-
+        start = time.time()
         outer_circles = self.outer_circle_gen()
         self.networks = houses + outer_circles
-        print("Total Population Size: {} Total Outer Networks: {}".format(len(self.peeps), len(self.outer_circles)))
+        d = time.time() - start
+        if d > 60:
+            print("Total Population Size: {} Total Outer Networks: {}. Time taken: {:.2f}mins".format(len(self.peeps), len(self.outer_circles), (time.time()-start)/60))
+        else:
+            print("Total Population Size: {} Total Outer Networks: {}. Time taken: {:.1f}secs".format(len(self.peeps), len(self.outer_circles), time.time()-start))
         self.built = True
 
     def day_iterate(self, duration):
@@ -212,7 +222,7 @@ class Simulate:
             if i == 0:
                 self.begin_sim()
             else:
-                if i == int(duration*0.5):
+                if i == int(duration*0.75):
                     # When we reach the half was mark begin basic self isolation
                     self.isolate_phase_one()
 

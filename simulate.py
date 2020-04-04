@@ -100,9 +100,10 @@ class Simulate:
                 solo = False
                 # If network is full, find another one!
                 while len(net.members) >= net.size:
-                    # print(net.code)
-                    # print(len(self.open_networks))
-                    self.open_networks.remove(net)
+                    try:
+                        self.open_networks.remove(net)
+                    except ValueError:
+                        break
                     cnt += 1
                     if cnt > len(self.open_networks):  # This needs to be verified as could try multiple times
                         solo = True

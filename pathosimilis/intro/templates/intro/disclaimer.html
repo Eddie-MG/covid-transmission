@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<br>
+<div class="ui container">
+  <div class="ui center aligned grid">
+    <div class="row">
+      <div class="ui center aligned segment">
+        <h2>Disclaimer</h2>
+        <p>These calculations are purely experimental and intended for research and learning purposes. They should not be taken as fact.</p>
+        <p>PS: Leave the Chinese people alone, it's not their fault. Now is time to stand by eachother. Also, just stay home...</p>
+      </div>
+    </div>
+    <div class="two column row">
+      <div class="column">
+        <button class="ui red button" onclick="window.location.href = 'http://www.dhmo.org/';">Decline - I will leave my home unneccesarily like a fooool</button>
+      </div>
+      <div class="column">
+        <a class="ui green button" href="{% url 'sim:sumilate' %}">Accept - I'm an amazing human being who wants to learn more and fight this virus!</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

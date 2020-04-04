@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="ui container">
+  <h1>Blessup!!</h1>
+  <h3>I built this site to give the public a better understanding of Pandemics and how they behave</h3>
+  <p>Feel free to play with the simulations, hopefully you'll have your eyes opened. Eddie</p>
+  <br><br>
+
+  <h4 class="ui horizontal divider header">
+    <i class="robot icon"></i>
+    Programs
+  </h4>
+  <br>
+  <div class="ui center aligned grid">
+    <div class="two column row">
+      <div class="column">
+        <a href="{% url 'intro:disc' %}"><h2>Transmission Simulator</h2></a>
+      </div>
+      <div class="column">
+        <a href="#"><h2>Contact Tracker</h2></a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

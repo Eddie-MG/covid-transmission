@@ -1,0 +1,31 @@
+{% load static from staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+      <meta charset="UTF-8">
+      <title>Pathosimilis</title>
+      <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+      <link href="{% static "semantic/dist/semantic.min.css" %}" rel="stylesheet" type="text/css"></link>
+      <script src="{% static "semantic/dist/semantic.min.js" %}"></script>
+  </head>
+  <body>
+    <div class="ui inverted basic segment">
+      <div class="ui inverted secondary pointing menu">
+        <a class="active item">
+          Home
+        </a>
+        <a class="item">
+          About Us
+        </a>
+        <a class="item">
+          Help Out
+        </a>
+        <a class="item">
+          Get Help
+        </a>
+      </div>
+    </div>
+    {% block content %}{% endblock %}
+  </body>
+</html>

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="ui container">
+  <div class="ui center aligned fluid segment">
+    <div class="ui grid">
+      <div class="row">
+        <div class="column">
+          <h2>Community Overview</h2>
+          <p>Population Size: {{population}}</p>
+          <p>Outer Circles: {{outer_cs}}</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="column">
+          <h2>Simulation Results</h2>
+          <p>**insert results here**</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

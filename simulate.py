@@ -14,6 +14,7 @@ class Simulate:
         self.comm_size = comm_size
         self.houses = []
         self.outer_circles = []
+        self.open_networks = []
         self.peeps = []
         self.networks = []
         self.cumulative_cases = {'day': [0, 0, 0], 'cases': [0, 0, 0], 'type': ['total', 'infected-a', 'infected-s']}
@@ -87,21 +88,27 @@ class Simulate:
             self.outer_circles.append(grp)
             sze += size
         # print(sze)
+        self.open_networks = self.outer_circles.copy()
 
         for pepe in self.peeps:
-            nets = random.sample(self.outer_circles, random.randint(1, 3))
+            if len(self.open_networks) <= 3:
+                break
+            nets = random.sample(self.open_networks, random.randint(1, 3))
 
             for net in nets:
                 cnt = 0
                 solo = False
                 # If network is full, find another one!
                 while len(net.members) >= net.size:
+                    # print(net.code)
+                    # print(len(self.open_networks))
+                    self.open_networks.remove(net)
                     cnt += 1
-                    if cnt > len(self.outer_circles):
+                    if cnt > len(self.open_networks):  # This needs to be verified as could try multiple times
                         solo = True
                         break
                     else:
-                        net = random.choice(self.outer_circles)
+                        net = random.choice(self.open_networks)
                 if solo:
                     break
                 else:

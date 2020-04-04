@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="ui container">
+  <div class="ui center aligned fluid grid">
+    <div class="twelve wide column">
+      <div class="ui center aligned fluid segment">
+        <h2>Enter your community size</h2>
+        {% if error_title %}
+        <div class="ui warning message">
+          <div class="header">{{error_title}}</div>
+          <p>{{error_content}}</p>
+        </div>
+        {% endif %}
+        <form class="ui huge form" action="{% url 'sim:sumilate' %}" method="post">
+          {% csrf_token %}
+          <div class="field">
+            <label>Number of Households</label>
+            <input placeholder="London ~ 3.6Million" type="text" name='commsize' required>
+          </div>
+          <div class="field">
+            <input class="ui blue fluid submit button" type="submit" value="Submit">
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
